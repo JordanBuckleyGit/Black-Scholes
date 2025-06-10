@@ -328,42 +328,83 @@ potential_profit = (intrinsic_value - option_price) * num_contracts * contract_s
 potential_return = (potential_profit / total_cost * 100) if total_cost > 0 else 0
 
 with st.expander("See Example P&L Scenarios"):
-    st.markdown("""
-    **Example 1: Profit**
-    - Spot Price at Expiry: **€120**
-    - Strike Price: **€100**
-    - Option Type: **Call**
-    - Option Premium: **€5**
-    - Number of Contracts: **1**
-    - Contract Size: **100**
-    - **Calculation:**  
-      Intrinsic Value = max(120 - 100, 0) = €20  
-      Profit = (Intrinsic Value - Premium) × Contracts × Contract Size  
-      Profit = (20 - 5) × 1 × 100 = **€1,500**
+    col_call, col_put = st.columns(2)
+    with col_call:
+        st.markdown("""
+        ### Call Option Examples
+        **Example 1: Profit**
+        - Spot Price at Expiry: **€120**
+        - Strike Price: **€100**
+        - Option Type: **Call**
+        - Option Premium: **€5**
+        - Number of Contracts: **1**
+        - Contract Size: **100**
+        - **Calculation:**  
+          Intrinsic Value = max(120 - 100, 0) = €20  
+          Profit = (Intrinsic Value - Premium) × Contracts × Contract Size  
+          Profit = (20 - 5) × 1 × 100 = **€1,500**
 
-    **Example 2: Loss**
-    - Spot Price at Expiry: **€90**
-    - Strike Price: **€100**
-    - Option Type: **Call**
-    - Option Premium: **€5**
-    - Number of Contracts: **1**
-    - Contract Size: **100**
-    - **Calculation:**  
-      Intrinsic Value = max(90 - 100, 0) = €0  
-      Loss = (Intrinsic Value - Premium) × Contracts × Contract Size  
-      Loss = (0 - 5) × 1 × 100 = **-€500**
+        **Example 2: Loss**
+        - Spot Price at Expiry: **€90**
+        - Strike Price: **€100**
+        - Option Type: **Call**
+        - Option Premium: **€5**
+        - Number of Contracts: **1**
+        - Contract Size: **100**
+        - **Calculation:**  
+          Intrinsic Value = max(90 - 100, 0) = €0  
+          Loss = (Intrinsic Value - Premium) × Contracts × Contract Size  
+          Loss = (0 - 5) × 1 × 100 = **-€500**
 
-    **Example 3: Neither (Break-even)**
-    - Spot Price at Expiry: **€105**
-    - Strike Price: **€100**
-    - Option Type: **Call**
-    - Option Premium: **€5**
-    - Number of Contracts: **1**
-    - Contract Size: **100**
-    - **Calculation:**  
-      Intrinsic Value = max(105 - 100, 0) = €5  
-      P&L = (5 - 5) × 1 × 100 = **€0** (Break-even)
-    """)
+        **Example 3: Neither (Break-even)**
+        - Spot Price at Expiry: **€105**
+        - Strike Price: **€100**
+        - Option Type: **Call**
+        - Option Premium: **€5**
+        - Number of Contracts: **1**
+        - Contract Size: **100**
+        - **Calculation:**  
+          Intrinsic Value = max(105 - 100, 0) = €5  
+          P&L = (5 - 5) × 1 × 100 = **€0** (Break-even)
+        """)
+    with col_put:
+        st.markdown("""
+        ### Put Option Examples
+        **Example 1: Profit**
+        - Spot Price at Expiry: **€80**
+        - Strike Price: **€100**
+        - Option Type: **Put**
+        - Option Premium: **€5**
+        - Number of Contracts: **1**
+        - Contract Size: **100**
+        - **Calculation:**  
+          Intrinsic Value = max(100 - 80, 0) = €20  
+          Profit = (Intrinsic Value - Premium) × Contracts × Contract Size  
+          Profit = (20 - 5) × 1 × 100 = **€1,500**
+
+        **Example 2: Loss**
+        - Spot Price at Expiry: **€110**
+        - Strike Price: **€100**
+        - Option Type: **Put**
+        - Option Premium: **€5**
+        - Number of Contracts: **1**
+        - Contract Size: **100**
+        - **Calculation:**  
+          Intrinsic Value = max(100 - 110, 0) = €0  
+          Loss = (Intrinsic Value - Premium) × Contracts × Contract Size  
+          Loss = (0 - 5) × 1 × 100 = **-€500**
+
+        **Example 3: Neither (Break-even)**
+        - Spot Price at Expiry: **€95**
+        - Strike Price: **€100**
+        - Option Type: **Put**
+        - Option Premium: **€5**
+        - Number of Contracts: **1**
+        - Contract Size: **100**
+        - **Calculation:**  
+          Intrinsic Value = max(100 - 95, 0) = €5  
+          P&L = (5 - 5) × 1 × 100 = **€0** (Break-even)
+        """)
     
 st.subheader("Profit & Loss (P&L)")
 col1, col2, col3 = st.columns(3)
