@@ -265,8 +265,9 @@ with st.sidebar: # used for simplicity
 display_input_summary(S, K, T, sigma, r)
 display_option_value_cards(S, K, T, r, sigma)
 
-# Graphing stuff
-# heatmap graph
+####################################
+# Graphing Section
+####################################
 st.header("Options Price - Heatmaps")
 st.info("These heatmaps show how the theoretical price of call and put options changes as spot price and volatility vary. Use the sliders in the sidebar to explore different scenarios.")
 col1, col2 = st.columns(2)
@@ -284,28 +285,24 @@ st.header("Option Payoff at Expiry (PNL)")
 S_range = np.linspace(max(1.0, S - 50), S + 50, 100)
 contract_size = 100  # standard contract size for options
 
-# Calculate payoff
 if option_type == "call":
     payoff = np.maximum(S_range - K, 0) - option_price
-    bep = K + option_price  # Break-even for call
+    bep = K + option_price
 else:
     payoff = np.maximum(K - S_range, 0) - option_price
-    bep = K - option_price  # Break-even for put
+    bep = K - option_price
 
 total_payoff = payoff * num_contracts * contract_size
 
 fig_payoff, ax_payoff = plt.subplots(figsize=(10, 6))
 
-# Fill green above BEP, red below
 ax_payoff.fill_between(S_range, total_payoff, 0, where=(S_range >= bep), color='green', alpha=0.15)
 ax_payoff.fill_between(S_range, total_payoff, 0, where=(S_range < bep), color='red', alpha=0.15)
 
-# Plot payoff line
 ax_payoff.plot(S_range, total_payoff, label=f'{option_type.capitalize()} Option P&L', color='royalblue', linewidth=2)
 ax_payoff.axhline(0, color='black', linestyle='--', linewidth=1)
 ax_payoff.axvline(K, color='red', linestyle=':', linewidth=1, label='Strike Price')
 
-# Annotate BEP at top left
 ax_payoff.text(
     0.02, 0.98,
     f"Break-even Point (BEP): €{bep:.2f}",
@@ -374,13 +371,28 @@ col1.metric("Total Option Cost (Premium)", f"€ {total_cost:,.2f}")
 col2.metric("Potential Profit", f"€ {potential_profit:,.2f}")
 col3.metric("Potential Return", f"{potential_return:.2f} %")
 
-if S > K and option_type == "call":
-    st.success("This call option is **in the money** (spot price above strike price).")
-elif S < K and option_type == "put":
-    st.success("This put option is **in the money** (spot price below strike price).")
-else:
-    st.info("This option is **out of the money**.")
+###########################
+# Output Message
+###########################
+if option_type == "call":
+    in_the_money = S > K
+    net_profit = (max(0, S - K) - option_price) * num_contracts * contract_size
+elif option_type == "put":
+    in_the_money = S < K
+    net_profit = (max(0, K - S) - option_price) * num_contracts * contract_size
 
+if in_the_money and net_profit > 0:
+    st.success("This option is **in the money** and profitable at expiry.")
+elif in_the_money and net_profit <= 0:
+    st.warning("This option is **in the money** but **not profitable** (the gain does not cover the premium).")
+elif not in_the_money and net_profit < 0:
+    st.info("This option is **out of the money** and not profitable.")
+else:
+    st.info("This option is **at the money** (spot price equals strike price).")
+
+#############################
+# Faqs (kinda)
+#############################
 with st.expander("Information"):
     st.markdown("""
     - **Spot Price (S):** The current price of the underlying asset.
