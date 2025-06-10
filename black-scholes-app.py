@@ -68,7 +68,7 @@ def calculate_rho(S, K, T, r, sigma, option_type='call'):
 
     return rho / 100 # returns as a percentage
     
-st.title("Black-Scholes Option Pricing Calculator")
+st.title("Black-Scholes Pricing Model")
 
 st.sidebar.markdown("""
 ### Created by: Jordan Buckley
@@ -92,6 +92,10 @@ T = st.sidebar.number_input("Time to Maturity (Years, T)", min_value=0.01, max_v
 r = st.sidebar.number_input("Risk-Free Rate (r, decimal)", min_value=0.0, max_value=0.2, value=0.05, step=0.001)
 sigma = st.sidebar.number_input("Volatility (σ, decimal)", min_value=0.01, max_value=1.0, value=0.2, step=0.01)
 option_type = st.sidebar.selectbox("Option Type", ["call", "put"])
+option_price = st.sidebar.number_input(
+    "Option Price (Premium)", min_value=0.0, value=float(f"{black_scholes_price(S, K, T, r, sigma, option_type):.2f}"), step=0.01
+)
+num_contracts = st.sidebar.number_input("Number of Option Contracts", min_value=1, value=1, step=1)
 calculate_button = st.sidebar.button("Calculate")
 
 if calculate_button:
@@ -139,3 +143,20 @@ if calculate_button:
     st.write(f"**Vega:** {calculate_vega(S, K, T, r, sigma):.4f}")
     st.write(f"**Theta (per day):** {calculate_theta(S, K, T, r, sigma, option_type):.4f}")
     st.write(f"**Rho (per 1% change):** {calculate_rho(S, K, T, r, sigma, option_type):.4f}")
+
+    contract_size = 100  # standard contract size for options
+    total_cost = option_price * num_contracts * contract_size
+    intrinsic_value = max(0, S - K) if option_type == "call" else max(0, K - S)
+    potential_profit = (intrinsic_value - option_price) * num_contracts * contract_size
+    potential_return = (potential_profit / total_cost * 100) if total_cost > 0 else 0
+
+    st.subheader("Profit & Loss (P&L)")
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Total Option Cost (Premium)", f"€ {total_cost:,.2f}")
+    col2.metric("Potential Profit", f"€ {potential_profit:,.2f}")
+    col3.metric("Potential Return", f"{potential_return:.2f} %")
+
+    if (option_type == "call" and S > K) or (option_type == "put" and S < K):
+        st.success("Profitable! 🎉")
+    else:
+        st.info("Unprofitable")
