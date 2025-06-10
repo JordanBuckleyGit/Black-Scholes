@@ -27,6 +27,17 @@ def calculate_theta(S, K, T, r, sigma, option_type='call'):
     # calculates the theta of an option, measures time decay. will implement the formula here
 
 def calculate_rho(S, K, T, r, sigma, option_type='call'):
+    # calculates d2
+    d2 = (np.log(S / K) + (r - 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
+    if option_type == 'call':
+        rho = K * T * np.exp(-r * T) * normal_cdf(d2)
+    elif option_type == 'put':
+            rho = -K * T * np.exp(-r * T) * normal_cdf(-d2)
+    else:
+         raise ValueError("Option Type must be 'call' or 'put'")
+
+    return rho / 100 # returns as a percentage
+    
     # calculates the rho of an option, for risk-free interest rate. will implement the formula here
 
 # streamlit app layout to be implemented below
