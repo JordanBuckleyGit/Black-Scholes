@@ -9,6 +9,10 @@ import tempfile
 
 
 # --- Core Black-Scholes and Greeks Algorithms ---
+
+#############################
+# Core formula functions
+#############################
 st.set_page_config(
     page_title="Black-Scholes Option Pricing Model",
     page_icon="📊",
@@ -72,10 +76,6 @@ def calculate_rho(S, K, T, r, sigma, option_type='call'):
          raise ValueError("Option Type must be 'call' or 'put'")
 
     return rho / 100 # returns as a percentage
-
-###################################
-# Box
-###################################
 
 def display_input_summary(S, K, T, sigma, r):
     input_df = pd.DataFrame({
