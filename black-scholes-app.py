@@ -4,6 +4,9 @@ from scipy.stats import norm # for the cumulative distribution function (CDF)
 import matplotlib.pyplot as plt
 import pandas as pd # for easier data handling for charts
 import seaborn as sns
+from fpdf import FPDF
+import tempfile
+
 
 # --- Core Black-Scholes and Greeks Algorithms ---
 st.set_page_config(
@@ -442,3 +445,51 @@ with st.expander("Information"):
     - **Risk-Free Rate (r):** Theoretical return of an investment with zero risk.
     """)
 st.markdown('[Learn more about Black-Scholes on Investopedia](https://www.investopedia.com/terms/b/blackscholes.asp)')
+
+################################
+# PDF summary
+################################
+def create_pdf(S, K, T, sigma, r, option_type, option_price, num_contracts, total_cost, potential_profit, potential_return, fig_payoff, fig_call, fig_put):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+    pdf.cell(200, 10, txt="Black-Scholes Option Pricing Report", ln=True, align='C')
+    pdf.ln(10)
+    pdf.cell(200, 10, txt=f"Spot Price (S): {S}", ln=True)
+    pdf.cell(200, 10, txt=f"Strike Price (K): {K}", ln=True)
+    pdf.cell(200, 10, txt=f"Time to Maturity (T): {T}", ln=True)
+    pdf.cell(200, 10, txt=f"Volatility (sigma): {sigma}", ln=True)
+    pdf.cell(200, 10, txt=f"Risk-Free Rate (r): {r}", ln=True)
+    pdf.cell(200, 10, txt=f"Option Type: {option_type}", ln=True)
+    pdf.cell(200, 10, txt=f"Option Price (Premium): {option_price} EUR", ln=True)
+    pdf.cell(200, 10, txt=f"Number of Contracts: {num_contracts}", ln=True)
+    pdf.cell(200, 10, txt=f"Total Cost: {total_cost} EUR", ln=True)
+    pdf.cell(200, 10, txt=f"Potential Profit: {potential_profit} EUR", ln=True)
+    pdf.cell(200, 10, txt=f"Potential Return: {potential_return:.2f}%", ln=True)
+    pdf.ln(10)
+
+    def add_fig_to_pdf(fig, pdf, title):
+        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmpfile:
+            fig.savefig(tmpfile.name, bbox_inches='tight')
+            pdf.add_page()
+            pdf.set_font("Arial", size=14)
+            pdf.cell(200, 10, txt=title, ln=True, align='C')
+            pdf.image(tmpfile.name, x=10, y=30, w=pdf.w - 20)
+    
+    add_fig_to_pdf(fig_payoff, pdf, "Option Payoff at Expiry")
+    add_fig_to_pdf(fig_call, pdf, "Call Option Price Heatmap")
+    add_fig_to_pdf(fig_put, pdf, "Put Option Price Heatmap")
+
+    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    return pdf_bytes
+
+pdf_file = create_pdf(
+    S, K, T, sigma, r, option_type, option_price, num_contracts, total_cost, potential_profit, potential_return,
+    fig_payoff, fig_call, fig_put
+)
+st.download_button(
+    label="Download PDF Report",
+    data=pdf_file,
+    file_name="black_scholes_report.pdf",
+    mime="application/pdf" # tells browser its a pdf file
+)
