@@ -21,7 +21,10 @@ def calculate_gamma(S, K, T, r, sigma):
     # calculates the gamma of an option. will implement the formula here
 
 def calculate_vega(S, K, T, r, sigma):
-    # calculates the vega of an option. will implement the formula here
+    d1 = (np.log(S / K) + (r + 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
+    pdf_d1 = norm.df(d1)
+    vega = S * pdf_d1 * np.sqrt(T)
+    return vega / 100 # return vega per 1% change
 
 def calculate_theta(S, K, T, r, sigma, option_type='call'):
     d1 = (np.log(S / K) + (r + 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
