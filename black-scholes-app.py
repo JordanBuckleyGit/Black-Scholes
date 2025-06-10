@@ -61,10 +61,13 @@ def calculate_rho(S, K, T, r, sigma, option_type='call'):
     if option_type == 'call':
         rho = K * T * np.exp(-r * T) * normal_cdf(d2)
     elif option_type == 'put':
-            rho = -K * T * np.exp(-r * T) * normal_cdf(-d2)
+        rho = -K * T * np.exp(-r * T) * normal_cdf(-d2)
     else:
          raise ValueError("Option Type must be 'call' or 'put'")
 
     return rho / 100 # returns as a percentage
     
 # streamlit app layout to be implemented below
+st.title("Black-Scholes Option Pricing Calculator")
+
+st.sidebar.header("Input Parameters")
