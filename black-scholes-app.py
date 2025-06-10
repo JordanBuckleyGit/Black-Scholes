@@ -70,6 +70,10 @@ def calculate_rho(S, K, T, r, sigma, option_type='call'):
 
     return rho / 100 # returns as a percentage
 
+###################################
+# Box
+###################################
+
 def display_input_summary(S, K, T, sigma, r):
     input_df = pd.DataFrame({
         "Current Asset Price": [S],
@@ -105,7 +109,31 @@ def display_option_value_cards(S, K, T, r, sigma):
             unsafe_allow_html=True
         )
 
-# ui stuff
+def plot_bs_heatmaps(spot_range, vol_range, K, T, r):
+    call_prices = np.zeros((len(vol_range), len(spot_range)))
+    put_prices = np.zeros((len(vol_range), len(spot_range)))
+    for i, vol in enumerate(vol_range):
+        for j, spot in enumerate(spot_range):
+            call_prices[i, j] = black_scholes_price(spot, K, T, r, vol, "call")
+            put_prices[i, j] = black_scholes_price(spot, K, T, r, vol, "put")
+    cmap = sns.diverging_palette(10, 130, as_cmap=True)
+    fig_call, ax_call = plt.subplots(figsize=(8, 6))
+    sns.heatmap(call_prices, xticklabels=np.round(spot_range, 2), yticklabels=np.round(vol_range, 2),
+                annot=True, fmt=".2f", cmap=cmap, ax=ax_call, cbar_kws={'label': 'Call Price'})
+    ax_call.set_title('CALL Option Price Heatmap')
+    ax_call.set_xlabel('Spot Price')
+    ax_call.set_ylabel('Volatility')
+    fig_put, ax_put = plt.subplots(figsize=(8, 6))
+    sns.heatmap(put_prices, xticklabels=np.round(spot_range, 2), yticklabels=np.round(vol_range, 2),
+                annot=True, fmt=".2f", cmap=cmap, ax=ax_put, cbar_kws={'label': 'Put Price'})
+    ax_put.set_title('PUT Option Price Heatmap')
+    ax_put.set_xlabel('Spot Price')
+    ax_put.set_ylabel('Volatility')
+    return fig_call, fig_put
+
+###############################
+# UI (sidebar)
+##############################
 st.title("📊 Black-Scholes Model")
 
 with st.sidebar: # used for simplicity 
@@ -154,29 +182,15 @@ display_option_value_cards(S, K, T, r, sigma)
 
 # if calculate_button:
 # heatmap graph
-st.header("Option Price - Heatmap:")
-S_heatmap_range = np.linspace(max(1.0, S - 50), S + 50, 20)
-sigma_heatmap_range = np.linspace(0.05, 0.5, 10)
-
-S_grid, sigma_grid = np.meshgrid(S_heatmap_range, sigma_heatmap_range)
-price_matrix = np.array([black_scholes_price(s, K, T, r, sig, option_type)
-                            for s, sig in zip(S_grid.flatten(), sigma_grid.flatten())]).reshape(sigma_grid.shape)
-
-fig_heatmap, ax_heatmap = plt.subplots(figsize=(12, 8))
-cmap = sns.diverging_palette(10, 130, as_cmap=True)
-sns.heatmap(price_matrix,
-            cmap=cmap,
-            annot=True,
-            fmt=".1f",
-            xticklabels=[f"{val:.0f}" for val in S_heatmap_range],
-            yticklabels=[f"{val:.2f}" for val in sigma_heatmap_range],
-            cbar_kws={'label': 'Option Price'},
-            ax=ax_heatmap)
-ax_heatmap.set_title(f"{option_type.capitalize()} Option Price Heatmap (Red-Green Scale)")
-ax_heatmap.set_xlabel("Spot Price (S)")
-ax_heatmap.set_ylabel("Volatility (σ)")
-plt.yticks(rotation=0)
-st.pyplot(fig_heatmap)
+st.header("Options Price - Heatmaps")
+col1, col2 = st.columns(2)
+with col1:
+    st.subheader("Call Price Heatmap")
+    fig_call, fig_put = plot_bs_heatmaps(spot_range, vol_range, K, T, r)
+    st.pyplot(fig_call)
+with col2:
+    st.subheader("Put Price Heatmap")
+    st.pyplot(fig_put)
 
 # --- Option Payoff at Expiry (P&L) ---
 st.header("Option Payoff at Expiry (PNL)")
