@@ -6,11 +6,14 @@ import pandas as pd # for easier data handling for charts
 import seaborn as sns
 
 # --- Core Black-Scholes and Greeks Algorithms ---
-st.set_page_config(layout="wide")
+st.set_page_config(
+    page_title="Black-Scholes Option Pricing Model",
+    page_icon="📊",
+    initial_sidebar_state="expanded",
+    layout="wide")
 
 def normal_cdf(x):
-    # calculates cumulative distribution func of the standard normal distribution
-    return norm.cdf(x)
+    return norm.cdf(x) # calculates cumulative distribution func of the standard normal distribution
 
 def black_scholes_price(S, K, T, r, sigma, option_type='call'):
     d1 = (np.log(S / K) + (r + 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
@@ -54,8 +57,7 @@ def calculate_theta(S, K, T, r, sigma, option_type='call'):
         theta = (-S * pdf_d1 * sigma / (2 * np.sqrt(T)) + r * K * np.exp(-r * T) * norm.cdf(-d2))
     else:
         raise ValueError("Option Type must be 'call' or 'put'")
-    # return per day theta
-    return theta / 365
+    return theta / 365 # return per day theta
 
 def calculate_rho(S, K, T, r, sigma, option_type='call'):
     d2 = (np.log(S / K) + (r - 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
@@ -102,44 +104,57 @@ def display_option_value_cards(S, K, T, r, sigma):
             """,
             unsafe_allow_html=True
         )
+
+# ui stuff
+st.title("📊 Black-Scholes Model")
+
+with st.sidebar: # used for simplicity 
+    st.markdown("""
+    ### Created by: Jordan Buckley
+    """)
+    st.markdown("""
+    <a href="https://www.linkedin.com/in/jordan05/" target="_blank" style="text-decoration: none;">
+        <img src="https://img.icons8.com/ios-filled/24/000000/linkedin.png"/> LinkedIn
+    </a>
+    <a href="https://github.com/JordanBuckleyGit" target="_blank" style="text-decoration: none;">
+        <img src="https://img.icons8.com/ios-filled/24/000000/github.png"/> GitHub
+    </a>
+    <a href="mailto:jordanbuckleycork@gmail.com" target="_blank" style="text-decoration: none;">
+        <img src="https://img.icons8.com/ios-filled/24/000000/new-post.png"/> Contact
+    </a>                   
+    """, unsafe_allow_html=True)
+    st.markdown("---")
+    S = st.number_input("Spot Price (S)", min_value=1.0, max_value=500.0, value=100.0, step=1.0)
+    K = st.number_input("Strike price (K)", min_value=1.0, max_value=500.0, value=100.0, step=1.0)
+    T = st.number_input("Time to Maturity (Years, T)", min_value=0.01, max_value=5.0, value=1.0, step=0.01)
+    r = st.number_input("Risk-Free Rate (r, decimal)", min_value=0.0, max_value=0.2, value=0.05, step=0.001)
+    sigma = st.number_input("Volatility (σ, decimal)", min_value=0.01, max_value=1.0, value=0.2, step=0.01)
+    option_type = st.selectbox("Option Type", ["call", "put"])
+    st.markdown("---")
+    st.subheader("PNL")
+    option_price = st.number_input(
+        "Option Price (Premium)", min_value=0.0, value=float(f"{black_scholes_price(S, K, T, r, sigma, option_type):.2f}"), step=0.01
+    )
+    num_contracts = st.number_input("Number of Option Contracts", min_value=1, value=1, step=1)
+    calculate_button = st.button("Calculate")
+    st.markdown("---")
+    calculate_btn = st.button("Heatmap Parameters")
+    spot_min = st.number_input("Min Spot Price", min_value=0.01, value=S*0.8, step=0.01)
+    spot_max = st.number_input("Max Spot Price", min_value=0.01, value=S*1.2, step=0.01)
+    vol_min = st.slider("Min Volatility for Heatmap", min_value=0.01, max_value=1.0, value=sigma*0.5, step=0.01)
+    vol_max = st.slider("Max Volatility for Heatmap", min_value=0.01, max_value=1.0, value=sigma*1.5, step=0.01)
     
-st.title("Black-Scholes Pricing Model")
-
-st.sidebar.markdown("""
-### Created by: Jordan Buckley
-""")
-
-st.sidebar.markdown("""
-<a href="https://www.linkedin.com/in/jordan05/" target="_blank" style="text-decoration: none;">
-    <img src="https://img.icons8.com/ios-filled/24/000000/linkedin.png"/> LinkedIn
-</a>
-<a href="https://github.com/JordanBuckleyGit" target="_blank" style="text-decoration: none;">
-    <img src="https://img.icons8.com/ios-filled/24/000000/github.png"/> GitHub
-</a>
-<a href="mailto:jordanbuckleycork@gmail.com" target="_blank" style="text-decoration: none;">
-    <img src="https://img.icons8.com/ios-filled/24/000000/new-post.png"/> Contact
-</a>                   
-""", unsafe_allow_html=True)
-
-S = st.sidebar.number_input("Spot Price (S)", min_value=1.0, max_value=500.0, value=100.0, step=1.0)
-K = st.sidebar.number_input("Strike price (K)", min_value=1.0, max_value=500.0, value=100.0, step=1.0)
-T = st.sidebar.number_input("Time to Maturity (Years, T)", min_value=0.01, max_value=5.0, value=1.0, step=0.01)
-r = st.sidebar.number_input("Risk-Free Rate (r, decimal)", min_value=0.0, max_value=0.2, value=0.05, step=0.001)
-sigma = st.sidebar.number_input("Volatility (σ, decimal)", min_value=0.01, max_value=1.0, value=0.2, step=0.01)
-option_type = st.sidebar.selectbox("Option Type", ["call", "put"])
-option_price = st.sidebar.number_input(
-    "Option Price (Premium)", min_value=0.0, value=float(f"{black_scholes_price(S, K, T, r, sigma, option_type):.2f}"), step=0.01
-)
-num_contracts = st.sidebar.number_input("Number of Option Contracts", min_value=1, value=1, step=1)
-calculate_button = st.sidebar.button("Calculate")
+    spot_range = np.linspace(spot_min, spot_max, 10)
+    vol_range = np.linspace(vol_min, vol_max, 10)
 
 display_input_summary(S, K, T, sigma, r)
 display_option_value_cards(S, K, T, r, sigma)
 
+# Graphing stuff
 
 # if calculate_button:
 # heatmap graph
-st.header("Option Price Heatmap: Spot Price vs. Volatility")
+st.header("Option Price - Heatmap:")
 S_heatmap_range = np.linspace(max(1.0, S - 50), S + 50, 20)
 sigma_heatmap_range = np.linspace(0.05, 0.5, 10)
 
@@ -164,7 +179,7 @@ plt.yticks(rotation=0)
 st.pyplot(fig_heatmap)
 
 # --- Option Payoff at Expiry (P&L) ---
-st.header("Option Payoff at Expiry (P&L)")
+st.header("Option Payoff at Expiry (PNL)")
 S_range = np.linspace(max(1.0, S - 50), S + 50, 100)
 contract_size = 100  # standard contract size for options
 
