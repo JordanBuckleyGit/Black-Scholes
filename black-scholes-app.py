@@ -70,7 +70,22 @@ def calculate_rho(S, K, T, r, sigma, option_type='call'):
     
 st.title("Black-Scholes Option Pricing Calculator")
 
-st.sidebar.header("Input Parameters")
+st.sidebar.markdown("""
+### Created by: Jordan Buckley
+""")
+
+st.sidebar.markdown("""
+<a href="https://www.linkedin.com/in/jordan05/" target="_blank" style="text-decoration: none;">
+    <img src="https://img.icons8.com/ios-filled/24/000000/linkedin.png"/> LinkedIn
+</a>
+<a href="https://github.com/JordanBuckleyGit" target="_blank" style="text-decoration: none;">
+    <img src="https://img.icons8.com/ios-filled/24/000000/github.png"/> GitHub
+</a>
+<a href="mailto:jordanbuckleycork@gmail.com" target="_blank" style="text-decoration: none;">
+    <img src="https://img.icons8.com/ios-filled/24/000000/new-post.png"/> Contact
+</a>                   
+""", unsafe_allow_html=True)
+
 S = st.sidebar.number_input("Spot Price (S)", min_value=1.0, max_value=500.0, value=100.0, step=1.0)
 K = st.sidebar.number_input("Strike price (K)", min_value=1.0, max_value=500.0, value=100.0, step=1.0)
 T = st.sidebar.number_input("Time to Maturity (Years, T)", min_value=0.01, max_value=5.0, value=1.0, step=0.01)
