@@ -6,6 +6,7 @@ import pandas as pd # for easier data handling for charts
 import seaborn as sns
 
 # --- Core Black-Scholes and Greeks Algorithms ---
+st.set_page_config(layout="wide")
 
 def normal_cdf(x):
     # calculates cumulative distribution func of the standard normal distribution
@@ -99,19 +100,7 @@ num_contracts = st.sidebar.number_input("Number of Option Contracts", min_value=
 calculate_button = st.sidebar.button("Calculate")
 
 if calculate_button:
-    st.header("Option Price vs. Spot Price")
-    S_range = np.linspace(max(1.0, S - 50), S + 50, 100)
-    prices = [black_scholes_price(s, K, T, r, sigma, option_type) for s in S_range]
-
-    fig_line, ax_line = plt.subplots(figsize=(10, 6))
-    ax_line.plot(S_range, prices, label=f'{option_type.capitalize()} Option Price')
-    ax_line.set_title(f"{option_type.capitalize()} Option Price vs. Spot Price")
-    ax_line.set_xlabel("Spot Price (S)")
-    ax_line.set_ylabel("Option Price")
-    ax_line.grid(True)
-    ax_line.legend()
-    st.pyplot(fig_line)
-
+    # heatmap graph
     st.header("Option Price Heatmap: Spot Price vs. Volatility")
     S_heatmap_range = np.linspace(max(1.0, S - 50), S + 50, 20)
     sigma_heatmap_range = np.linspace(0.05, 0.5, 10)
@@ -136,13 +125,38 @@ if calculate_button:
     plt.yticks(rotation=0)
     st.pyplot(fig_heatmap)
 
-    st.subheader("Black-Scholes Calculated Values")
-    st.write(f"**Option Price:** {black_scholes_price(S, K, T, r, sigma, option_type):.4f}")
-    st.write(f"**Delta:** {calculate_delta(S, K, T, r, sigma, option_type):.4f}")
-    st.write(f"**Gamma:** {calculate_gamma(S, K, T, r, sigma):.4f}")
-    st.write(f"**Vega:** {calculate_vega(S, K, T, r, sigma):.4f}")
-    st.write(f"**Theta (per day):** {calculate_theta(S, K, T, r, sigma, option_type):.4f}")
-    st.write(f"**Rho (per 1% change):** {calculate_rho(S, K, T, r, sigma, option_type):.4f}")
+    # st.subheader("Black-Scholes Calculated Values")
+    # st.write(f"**Option Price:** {black_scholes_price(S, K, T, r, sigma, option_type):.4f}")
+    # st.write(f"**Delta:** {calculate_delta(S, K, T, r, sigma, option_type):.4f}")
+    # st.write(f"**Gamma:** {calculate_gamma(S, K, T, r, sigma):.4f}")
+    # st.write(f"**Vega:** {calculate_vega(S, K, T, r, sigma):.4f}")
+    # st.write(f"**Theta (per day):** {calculate_theta(S, K, T, r, sigma, option_type):.4f}")
+    # st.write(f"**Rho (per 1% change):** {calculate_rho(S, K, T, r, sigma, option_type):.4f}")
+
+    # --- Option Payoff at Expiry (P&L) ---
+    st.header("Option Payoff at Expiry (P&L)")
+    S_range = np.linspace(max(1.0, S - 50), S + 50, 100)
+    contract_size = 100  # standard contract size for options
+
+    if option_type == "call":
+        payoff = np.maximum(S_range - K, 0) - option_price
+    else:
+        payoff = np.maximum(K - S_range, 0) - option_price
+
+    total_payoff = payoff * num_contracts * contract_size
+
+    fig_payoff, ax_payoff = plt.subplots(figsize=(10, 6))
+    ax_payoff.plot(S_range, total_payoff, label=f'{option_type.capitalize()} Option P&L', color='royalblue')
+    ax_payoff.axhline(0, color='black', linestyle='--', linewidth=1)
+    ax_payoff.axvline(K, color='red', linestyle=':', linewidth=1, label='Strike Price')
+    ax_payoff.set_title(f"{option_type.capitalize()} Option Payoff at Expiry")
+    ax_payoff.set_xlabel("Spot Price at Expiry (S)")
+    ax_payoff.set_ylabel("Profit / Loss (€)")
+    ax_payoff.grid(True, linestyle='--', alpha=0.7)
+    ax_payoff.legend()
+    st.pyplot(fig_payoff)
+
+
 
     contract_size = 100  # standard contract size for options
     total_cost = option_price * num_contracts * contract_size
