@@ -67,7 +67,9 @@ def calculate_rho(S, K, T, r, sigma, option_type='call'):
 
     return rho / 100 # returns as a percentage
     
-# streamlit app layout to be implemented below
 st.title("Black-Scholes Option Pricing Calculator")
 
 st.sidebar.header("Input Parameters")
+S = st.sidebar.number_input("Spot Price (S)", value=100.0)
+K = st.sidebar.number_input("Strike price (K)", value=100.0)
+option_type = st.sidebar.selectbox("Option Type", ["call", "put"])
