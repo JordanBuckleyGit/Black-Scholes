@@ -11,11 +11,16 @@ def normal_cdf(x):
     return norm.cdf(x)
 
 def black_scholes_price(S, K, T, r, sigma, option_type='call'):
-    # calculates the black scholes option price. will implement the formula here and handle edge cases
-    return price
 
 def calculate_delta(S, K, T, r, sigma, option_type='call'):
-    # calculates delta of an option. will implement the formula here
+    d1 = (np.log(S / K) + (r + 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
+    if option_type == "call":
+        delta = norm.cdf(d1)
+    elif option_type == "put":
+        delta = norm.cdf(d1) - 1
+    else:
+         raise ValueError("Option Type must be 'call' or 'put'")
+    return delta # returns the option delta (sensitivity to underlying price)
 
 def calculate_gamma(S, K, T, r, sigma):
     d1 = (np.log(S / K) + (r + 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
