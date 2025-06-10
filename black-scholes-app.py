@@ -136,6 +136,12 @@ def plot_bs_heatmaps(spot_range, vol_range, K, T, r):
 ##############################
 st.title("📊 Black-Scholes Model")
 
+with st.expander("What is the Black-Scholes Model?"):
+    st.markdown("""
+    The Black-Scholes model is a mathematical model for pricing European options and derivatives. 
+    It estimates the theoretical value of options based on factors like spot price, strike price, time to maturity, volatility, and risk-free rate.
+    """)
+
 with st.sidebar: # used for simplicity 
     st.markdown("""
     ### Created by: Jordan Buckley
@@ -260,10 +266,9 @@ display_input_summary(S, K, T, sigma, r)
 display_option_value_cards(S, K, T, r, sigma)
 
 # Graphing stuff
-
-# if calculate_button:
 # heatmap graph
 st.header("Options Price - Heatmaps")
+st.info("These heatmaps show how the theoretical price of call and put options changes as spot price and volatility vary. Use the sliders in the sidebar to explore different scenarios.")
 col1, col2 = st.columns(2)
 with col1:
     st.subheader("Call Price Heatmap")
