@@ -152,12 +152,51 @@ with st.sidebar: # used for simplicity
     </a>                   
     """, unsafe_allow_html=True)
     st.markdown("---")
-    S = st.number_input("Spot Price (S)", min_value=1.0, max_value=500.0, value=100.0, step=1.0)
-    K = st.number_input("Strike price (K)", min_value=1.0, max_value=500.0, value=100.0, step=1.0)
-    T = st.number_input("Time to Maturity (Years, T)", min_value=0.01, max_value=5.0, value=1.0, step=0.01)
-    r = st.number_input("Risk-Free Rate (r, decimal)", min_value=0.0, max_value=0.2, value=0.05, step=0.001)
-    sigma = st.number_input("Volatility (σ, decimal)", min_value=0.01, max_value=1.0, value=0.2, step=0.01)
-    option_type = st.selectbox("Option Type", ["call", "put"])
+    S = st.number_input(
+        "Spot Price (S)", 
+        min_value=1.0, 
+        max_value=500.0, 
+        value=100.0, 
+        step=1.0,
+        help="The current price of the underlying asset."
+    )
+    K = st.number_input(
+        "Strike price (K)", 
+        min_value=1.0, 
+        max_value=500.0, 
+        value=100.0, 
+        step=1.0,
+        help="The price at which you have the right to buy (call) or sell (put) the asset."
+    )
+    T = st.number_input(
+        "Time to Maturity (Years, T)", 
+        min_value=0.01, 
+        max_value=5.0, 
+        value=1.0, 
+        step=0.01,
+        help="The time in years until the option expires."
+    )
+    r = st.number_input(
+        "Risk-Free Rate (r, decimal)", 
+        min_value=0.0, 
+        max_value=0.2, 
+        value=0.05, 
+        step=0.001,
+        help="The annualized risk-free interest rate (as a decimal, e.g., 0.05 for 5%)."
+    )
+    sigma = st.number_input(
+        "Volatility (σ, decimal)", 
+        min_value=0.01, 
+        max_value=1.0, 
+        value=0.2, 
+        step=0.01,
+        help="The annualized volatility of the underlying asset (as a decimal, e.g., 0.2 for 20%)."
+    )
+    option_type = st.selectbox(
+        "Option Type", 
+        ["call", "put"],
+        help="Choose 'call' for the right to buy, or 'put' for the right to sell."
+    )
     st.markdown("---")
     st.subheader("PNL")
     option_price = st.number_input(
