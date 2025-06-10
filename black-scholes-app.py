@@ -200,16 +200,58 @@ with st.sidebar: # used for simplicity
     st.markdown("---")
     st.subheader("PNL")
     option_price = st.number_input(
-        "Option Price (Premium)", min_value=0.0, value=float(f"{black_scholes_price(S, K, T, r, sigma, option_type):.2f}"), step=0.01
+        "Option Price (Premium)", 
+        min_value=0.0, 
+        value=float(f"{black_scholes_price(S, K, T, r, sigma, option_type):.2f}"), 
+        step=0.01,
+        help="The price paid per option contract (premium)."
     )
-    num_contracts = st.number_input("Number of Option Contracts", min_value=1, value=1, step=1)
-    calculate_button = st.button("Calculate")
+    num_contracts = st.number_input(
+        "Number of Option Contracts", 
+        min_value=1, 
+        value=1, 
+        step=1,
+        help="The number of option contracts you want to buy or sell."
+    )
+    calculate_button = st.button(
+        "Calculate",
+        help="Click to calculate the P&L and payoff chart."
+    )
     st.markdown("---")
-    calculate_btn = st.button("Heatmap Parameters")
-    spot_min = st.number_input("Min Spot Price", min_value=0.01, value=S*0.8, step=0.01)
-    spot_max = st.number_input("Max Spot Price", min_value=0.01, value=S*1.2, step=0.01)
-    vol_min = st.slider("Min Volatility for Heatmap", min_value=0.01, max_value=1.0, value=sigma*0.5, step=0.01)
-    vol_max = st.slider("Max Volatility for Heatmap", min_value=0.01, max_value=1.0, value=sigma*1.5, step=0.01)
+    calculate_btn = st.button(
+        "Heatmap Parameters",
+        help="Click to update the heatmap parameter ranges below."
+    )
+    spot_min = st.number_input(
+        "Min Spot Price", 
+        min_value=0.01, 
+        value=S*0.8, 
+        step=0.01,
+        help="The minimum spot price to display on the heatmap."
+    )
+    spot_max = st.number_input(
+        "Max Spot Price", 
+        min_value=0.01, 
+        value=S*1.2, 
+        step=0.01,
+        help="The maximum spot price to display on the heatmap."
+    )
+    vol_min = st.slider(
+        "Min Volatility for Heatmap", 
+        min_value=0.01, 
+        max_value=1.0, 
+        value=sigma*0.5, 
+        step=0.01,
+        help="The minimum volatility value to display on the heatmap."
+    )
+    vol_max = st.slider(
+        "Max Volatility for Heatmap", 
+        min_value=0.01, 
+        max_value=1.0, 
+        value=sigma*1.5, 
+        step=0.01,
+        help="The maximum volatility value to display on the heatmap."
+    )
     
     spot_range = np.linspace(spot_min, spot_max, 10)
     vol_range = np.linspace(vol_min, vol_max, 10)
