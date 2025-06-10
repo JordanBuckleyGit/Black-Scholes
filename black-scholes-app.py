@@ -277,6 +277,7 @@ with col1:
 with col2:
     st.subheader("Put Price Heatmap")
     st.pyplot(fig_put)
+st.caption("Tip: Try increasing volatility to see how it impacts both call and put prices!")
 
 # --- Option Payoff at Expiry (P&L) ---
 st.header("Option Payoff at Expiry (PNL)")
@@ -307,13 +308,61 @@ intrinsic_value = max(0, S - K) if option_type == "call" else max(0, K - S)
 potential_profit = (intrinsic_value - option_price) * num_contracts * contract_size
 potential_return = (potential_profit / total_cost * 100) if total_cost > 0 else 0
 
+with st.expander("See Example P&L Scenarios"):
+    st.markdown("""
+    **Example 1: Profit**
+    - Spot Price at Expiry: **€120**
+    - Strike Price: **€100**
+    - Option Type: **Call**
+    - Option Premium: **€5**
+    - Number of Contracts: **1**
+    - Contract Size: **100**
+    - **Calculation:**  
+      Intrinsic Value = max(120 - 100, 0) = €20  
+      Profit = (Intrinsic Value - Premium) × Contracts × Contract Size  
+      Profit = (20 - 5) × 1 × 100 = **€1,500**
+
+    **Example 2: Loss**
+    - Spot Price at Expiry: **€90**
+    - Strike Price: **€100**
+    - Option Type: **Call**
+    - Option Premium: **€5**
+    - Number of Contracts: **1**
+    - Contract Size: **100**
+    - **Calculation:**  
+      Intrinsic Value = max(90 - 100, 0) = €0  
+      Loss = (Intrinsic Value - Premium) × Contracts × Contract Size  
+      Loss = (0 - 5) × 1 × 100 = **-€500**
+
+    **Example 3: Neither (Break-even)**
+    - Spot Price at Expiry: **€105**
+    - Strike Price: **€100**
+    - Option Type: **Call**
+    - Option Premium: **€5**
+    - Number of Contracts: **1**
+    - Contract Size: **100**
+    - **Calculation:**  
+      Intrinsic Value = max(105 - 100, 0) = €5  
+      P&L = (5 - 5) × 1 × 100 = **€0** (Break-even)
+    """)
 st.subheader("Profit & Loss (P&L)")
 col1, col2, col3 = st.columns(3)
 col1.metric("Total Option Cost (Premium)", f"€ {total_cost:,.2f}")
 col2.metric("Potential Profit", f"€ {potential_profit:,.2f}")
 col3.metric("Potential Return", f"{potential_return:.2f} %")
 
-if potential_profit > 0:
-    st.success("Profitable! 🎉")
+if S > K and option_type == "call":
+    st.success("This call option is **in the money** (spot price above strike price).")
+elif S < K and option_type == "put":
+    st.success("This put option is **in the money** (spot price below strike price).")
 else:
-    st.info("Unprofitable")
+    st.info("This option is **out of the money**.")
+
+with st.expander("Information"):
+    st.markdown("""
+    - **Spot Price (S):** The current price of the underlying asset.
+    - **Strike Price (K):** The price at which you can buy (call) or sell (put) the asset.
+    - **Volatility (σ):** A measure of how much the asset price fluctuates.
+    - **Risk-Free Rate (r):** Theoretical return of an investment with zero risk.
+    """)
+st.markdown('[Learn more about Black-Scholes on Investopedia](https://www.investopedia.com/terms/b/blackscholes.asp)')
