@@ -11,6 +11,15 @@ def normal_cdf(x):
     return norm.cdf(x)
 
 def black_scholes_price(S, K, T, r, sigma, option_type='call'):
+    d1 = (np.log(S / K) + (r + 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
+    d2 = d1 - sigma * np.sqrt(T)
+    if option_type == "call":
+        price = S * norm.cdf(d1) - K * np.exp(-r * T) * norm.cdf(d2)
+    elif option_type == "put":
+        price = K * np.exp(-r * T) * norm.cdf(-d2) - S * norm.cdf(-d1)
+    else:
+        raise ValueError("Option Type must be 'call' or 'put'")
+    return price # returns the black-scholes price for the option
 
 def calculate_delta(S, K, T, r, sigma, option_type='call'):
     d1 = (np.log(S / K) + (r + 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
@@ -42,7 +51,7 @@ def calculate_theta(S, K, T, r, sigma, option_type='call'):
     elif option_type == "put":
         theta = (-S * pdf_d1 * sigma / (2 * np.sqrt(T)) + r * K * np.exp(-r * T) * norm.cdf(-d2))
     else:
-         raise ValueError("Option Type must be 'call' or 'put'")
+        raise ValueError("Option Type must be 'call' or 'put'")
     # return per day theta
     return theta / 365
 
