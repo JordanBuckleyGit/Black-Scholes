@@ -22,7 +22,7 @@ def calculate_gamma(S, K, T, r, sigma):
 
 def calculate_vega(S, K, T, r, sigma):
     d1 = (np.log(S / K) + (r + 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
-    pdf_d1 = norm.df(d1)
+    pdf_d1 = norm.pdf(d1)
     vega = S * pdf_d1 * np.sqrt(T)
     return vega / 100 # return vega per 1% change
 
