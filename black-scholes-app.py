@@ -284,17 +284,39 @@ st.header("Option Payoff at Expiry (PNL)")
 S_range = np.linspace(max(1.0, S - 50), S + 50, 100)
 contract_size = 100  # standard contract size for options
 
+# Calculate payoff
 if option_type == "call":
     payoff = np.maximum(S_range - K, 0) - option_price
+    bep = K + option_price  # Break-even for call
 else:
     payoff = np.maximum(K - S_range, 0) - option_price
+    bep = K - option_price  # Break-even for put
 
 total_payoff = payoff * num_contracts * contract_size
 
 fig_payoff, ax_payoff = plt.subplots(figsize=(10, 6))
-ax_payoff.plot(S_range, total_payoff, label=f'{option_type.capitalize()} Option P&L', color='royalblue')
+
+# Fill green above BEP, red below
+ax_payoff.fill_between(S_range, total_payoff, 0, where=(S_range >= bep), color='green', alpha=0.15)
+ax_payoff.fill_between(S_range, total_payoff, 0, where=(S_range < bep), color='red', alpha=0.15)
+
+# Plot payoff line
+ax_payoff.plot(S_range, total_payoff, label=f'{option_type.capitalize()} Option P&L', color='royalblue', linewidth=2)
 ax_payoff.axhline(0, color='black', linestyle='--', linewidth=1)
 ax_payoff.axvline(K, color='red', linestyle=':', linewidth=1, label='Strike Price')
+
+# Annotate BEP at top left
+ax_payoff.text(
+    0.02, 0.98,
+    f"Break-even Point (BEP): €{bep:.2f}",
+    transform=ax_payoff.transAxes,
+    fontsize=12,
+    fontweight='bold',
+    color='green',
+    verticalalignment='top',
+    bbox=dict(facecolor='white', alpha=0.7, edgecolor='green')
+)
+
 ax_payoff.set_title(f"{option_type.capitalize()} Option Payoff at Expiry")
 ax_payoff.set_xlabel("Spot Price at Expiry (S)")
 ax_payoff.set_ylabel("Profit / Loss (€)")
@@ -345,6 +367,7 @@ with st.expander("See Example P&L Scenarios"):
       Intrinsic Value = max(105 - 100, 0) = €5  
       P&L = (5 - 5) × 1 × 100 = **€0** (Break-even)
     """)
+    
 st.subheader("Profit & Loss (P&L)")
 col1, col2, col3 = st.columns(3)
 col1.metric("Total Option Cost (Premium)", f"€ {total_cost:,.2f}")
