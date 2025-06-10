@@ -18,7 +18,9 @@ def calculate_delta(S, K, T, r, sigma, option_type='call'):
     # calculates delta of an option. will implement the formula here
 
 def calculate_gamma(S, K, T, r, sigma):
-    # calculates the gamma of an option. will implement the formula here
+    d1 = (np.log(S / K) + (r + 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
+    gamma = norm.pdf(d1) / (S * sigma * np.sqrt(T))
+    return gamma # returns the rate of change of delta with respect to the underlying asset price (gamma)
 
 def calculate_vega(S, K, T, r, sigma):
     d1 = (np.log(S / K) + (r + 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
