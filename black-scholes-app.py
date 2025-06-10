@@ -58,7 +58,6 @@ def calculate_theta(S, K, T, r, sigma, option_type='call'):
     return theta / 365
 
 def calculate_rho(S, K, T, r, sigma, option_type='call'):
-    # calculates d2
     d2 = (np.log(S / K) + (r - 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
     if option_type == 'call':
         rho = K * T * np.exp(-r * T) * normal_cdf(d2)
@@ -68,6 +67,41 @@ def calculate_rho(S, K, T, r, sigma, option_type='call'):
          raise ValueError("Option Type must be 'call' or 'put'")
 
     return rho / 100 # returns as a percentage
+
+def display_input_summary(S, K, T, sigma, r):
+    input_df = pd.DataFrame({
+        "Current Asset Price": [S],
+        "Strike Price": [K],
+        "Time to Maturity (Years)": [T],
+        "Volatility (σ)": [sigma],
+        "Risk-Free Interest Rate": [r]
+    })
+    st.dataframe(input_df.style.format("{:.4f}"), use_container_width=True)
+
+def display_option_value_cards(S, K, T, r, sigma):
+    call_value = black_scholes_price(S, K, T, r, sigma, "call")
+    put_value = black_scholes_price(S, K, T, r, sigma, "put")
+    col1, col2 = st.columns(2, gap="large")
+    with col1:
+        st.markdown(
+            f"""
+            <div style="background-color:#7fdc8c;padding:10px 0 10px 0;border-radius:15px;text-align:center;">
+                <span style="font-size:16px;font-weight:bold;color:black;">CALL Value</span><br>
+                <span style="font-size:22px;font-weight:bold;color:black;">${call_value:.2f}</span>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+    with col2:
+        st.markdown(
+            f"""
+            <div style="background-color:#ffb3b3;padding:10px 0 10px 0;border-radius:15px;text-align:center;">
+                <span style="font-size:16px;font-weight:bold;color:black;">PUT Value</span><br>
+                <span style="font-size:22px;font-weight:bold;color:black;">${put_value:.2f}</span>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
     
 st.title("Black-Scholes Pricing Model")
 
@@ -99,78 +133,72 @@ option_price = st.sidebar.number_input(
 num_contracts = st.sidebar.number_input("Number of Option Contracts", min_value=1, value=1, step=1)
 calculate_button = st.sidebar.button("Calculate")
 
-if calculate_button:
-    # heatmap graph
-    st.header("Option Price Heatmap: Spot Price vs. Volatility")
-    S_heatmap_range = np.linspace(max(1.0, S - 50), S + 50, 20)
-    sigma_heatmap_range = np.linspace(0.05, 0.5, 10)
-
-    S_grid, sigma_grid = np.meshgrid(S_heatmap_range, sigma_heatmap_range)
-    price_matrix = np.array([black_scholes_price(s, K, T, r, sig, option_type)
-                             for s, sig in zip(S_grid.flatten(), sigma_grid.flatten())]).reshape(sigma_grid.shape)
-
-    fig_heatmap, ax_heatmap = plt.subplots(figsize=(12, 8))
-    cmap = sns.diverging_palette(10, 130, as_cmap=True)
-    sns.heatmap(price_matrix,
-                cmap=cmap,
-                annot=True,
-                fmt=".1f",
-                xticklabels=[f"{val:.0f}" for val in S_heatmap_range],
-                yticklabels=[f"{val:.2f}" for val in sigma_heatmap_range],
-                cbar_kws={'label': 'Option Price'},
-                ax=ax_heatmap)
-    ax_heatmap.set_title(f"{option_type.capitalize()} Option Price Heatmap (Red-Green Scale)")
-    ax_heatmap.set_xlabel("Spot Price (S)")
-    ax_heatmap.set_ylabel("Volatility (σ)")
-    plt.yticks(rotation=0)
-    st.pyplot(fig_heatmap)
-
-    # st.subheader("Black-Scholes Calculated Values")
-    # st.write(f"**Option Price:** {black_scholes_price(S, K, T, r, sigma, option_type):.4f}")
-    # st.write(f"**Delta:** {calculate_delta(S, K, T, r, sigma, option_type):.4f}")
-    # st.write(f"**Gamma:** {calculate_gamma(S, K, T, r, sigma):.4f}")
-    # st.write(f"**Vega:** {calculate_vega(S, K, T, r, sigma):.4f}")
-    # st.write(f"**Theta (per day):** {calculate_theta(S, K, T, r, sigma, option_type):.4f}")
-    # st.write(f"**Rho (per 1% change):** {calculate_rho(S, K, T, r, sigma, option_type):.4f}")
-
-    # --- Option Payoff at Expiry (P&L) ---
-    st.header("Option Payoff at Expiry (P&L)")
-    S_range = np.linspace(max(1.0, S - 50), S + 50, 100)
-    contract_size = 100  # standard contract size for options
-
-    if option_type == "call":
-        payoff = np.maximum(S_range - K, 0) - option_price
-    else:
-        payoff = np.maximum(K - S_range, 0) - option_price
-
-    total_payoff = payoff * num_contracts * contract_size
-
-    fig_payoff, ax_payoff = plt.subplots(figsize=(10, 6))
-    ax_payoff.plot(S_range, total_payoff, label=f'{option_type.capitalize()} Option P&L', color='royalblue')
-    ax_payoff.axhline(0, color='black', linestyle='--', linewidth=1)
-    ax_payoff.axvline(K, color='red', linestyle=':', linewidth=1, label='Strike Price')
-    ax_payoff.set_title(f"{option_type.capitalize()} Option Payoff at Expiry")
-    ax_payoff.set_xlabel("Spot Price at Expiry (S)")
-    ax_payoff.set_ylabel("Profit / Loss (€)")
-    ax_payoff.grid(True, linestyle='--', alpha=0.7)
-    ax_payoff.legend()
-    st.pyplot(fig_payoff)
+display_input_summary(S, K, T, sigma, r)
+display_option_value_cards(S, K, T, r, sigma)
 
 
+# if calculate_button:
+# heatmap graph
+st.header("Option Price Heatmap: Spot Price vs. Volatility")
+S_heatmap_range = np.linspace(max(1.0, S - 50), S + 50, 20)
+sigma_heatmap_range = np.linspace(0.05, 0.5, 10)
 
-    contract_size = 100  # standard contract size for options
-    total_cost = option_price * num_contracts * contract_size
-    intrinsic_value = max(0, S - K) if option_type == "call" else max(0, K - S)
-    potential_profit = (intrinsic_value - option_price) * num_contracts * contract_size
-    potential_return = (potential_profit / total_cost * 100) if total_cost > 0 else 0
+S_grid, sigma_grid = np.meshgrid(S_heatmap_range, sigma_heatmap_range)
+price_matrix = np.array([black_scholes_price(s, K, T, r, sig, option_type)
+                            for s, sig in zip(S_grid.flatten(), sigma_grid.flatten())]).reshape(sigma_grid.shape)
 
-    st.subheader("Profit & Loss (P&L)")
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Total Option Cost (Premium)", f"€ {total_cost:,.2f}")
-    col2.metric("Potential Profit", f"€ {potential_profit:,.2f}")
-    col3.metric("Potential Return", f"{potential_return:.2f} %")
+fig_heatmap, ax_heatmap = plt.subplots(figsize=(12, 8))
+cmap = sns.diverging_palette(10, 130, as_cmap=True)
+sns.heatmap(price_matrix,
+            cmap=cmap,
+            annot=True,
+            fmt=".1f",
+            xticklabels=[f"{val:.0f}" for val in S_heatmap_range],
+            yticklabels=[f"{val:.2f}" for val in sigma_heatmap_range],
+            cbar_kws={'label': 'Option Price'},
+            ax=ax_heatmap)
+ax_heatmap.set_title(f"{option_type.capitalize()} Option Price Heatmap (Red-Green Scale)")
+ax_heatmap.set_xlabel("Spot Price (S)")
+ax_heatmap.set_ylabel("Volatility (σ)")
+plt.yticks(rotation=0)
+st.pyplot(fig_heatmap)
 
-    if (option_type == "call" and S > K) or (option_type == "put" and S < K):
-        st.success("Profitable! 🎉")
-    else:
-        st.info("Unprofitable")
+# --- Option Payoff at Expiry (P&L) ---
+st.header("Option Payoff at Expiry (P&L)")
+S_range = np.linspace(max(1.0, S - 50), S + 50, 100)
+contract_size = 100  # standard contract size for options
+
+if option_type == "call":
+    payoff = np.maximum(S_range - K, 0) - option_price
+else:
+    payoff = np.maximum(K - S_range, 0) - option_price
+
+total_payoff = payoff * num_contracts * contract_size
+
+fig_payoff, ax_payoff = plt.subplots(figsize=(10, 6))
+ax_payoff.plot(S_range, total_payoff, label=f'{option_type.capitalize()} Option P&L', color='royalblue')
+ax_payoff.axhline(0, color='black', linestyle='--', linewidth=1)
+ax_payoff.axvline(K, color='red', linestyle=':', linewidth=1, label='Strike Price')
+ax_payoff.set_title(f"{option_type.capitalize()} Option Payoff at Expiry")
+ax_payoff.set_xlabel("Spot Price at Expiry (S)")
+ax_payoff.set_ylabel("Profit / Loss (€)")
+ax_payoff.grid(True, linestyle='--', alpha=0.7)
+ax_payoff.legend()
+st.pyplot(fig_payoff)
+
+contract_size = 100  # standard contract size for options
+total_cost = option_price * num_contracts * contract_size
+intrinsic_value = max(0, S - K) if option_type == "call" else max(0, K - S)
+potential_profit = (intrinsic_value - option_price) * num_contracts * contract_size
+potential_return = (potential_profit / total_cost * 100) if total_cost > 0 else 0
+
+st.subheader("Profit & Loss (P&L)")
+col1, col2, col3 = st.columns(3)
+col1.metric("Total Option Cost (Premium)", f"€ {total_cost:,.2f}")
+col2.metric("Potential Profit", f"€ {potential_profit:,.2f}")
+col3.metric("Potential Return", f"{potential_return:.2f} %")
+
+if potential_profit > 0:
+    st.success("Profitable! 🎉")
+else:
+    st.info("Unprofitable")
